@@ -121,6 +121,7 @@ app.use(express.static(path.join(__dirname, 'client/build'))); // Sirve React
 
 // Endpoint para consultar nodos procesados
 app.get('/nodes', (req, res) => {
+    getExternalIP();
     const nodes = Array.from(processedNodes).map((node) => {
         const [ip, port] = node.split(':');
         return { ip, port: parseInt(port, 10) };
@@ -131,6 +132,7 @@ app.get('/nodes', (req, res) => {
 
 // Endpoint para consultar canales descubiertos
 app.get('/channels', (req, res) => {
+    
     BOOTSTRAP_NODES.forEach(({ ip, port }) => {
         const nodeKey = `${ip}:${port}`;
         pendingNodes.add(nodeKey); // Agregar nodos bootstrap al conjunto de pendientes
