@@ -3,7 +3,7 @@ const express = require('express');
 const UdpPacketReader = require('./udpPacketReader');
 const ChannelListItem = require('./channelListItem');
 const path = require('path');
-
+const https = require('https');
 // Configuración del servidor UDP
 const udpSocket = dgram.createSocket('udp4');
 const PORT = 12345;
@@ -16,6 +16,23 @@ const BOOTSTRAP_NODES = [
 const pendingNodes = new Set(); // Nodos pendientes de procesar
 const processedNodes = new Set(); // Nodos ya procesados
 const channelsMap = new Map(); // Información única de canales procesados
+
+
+const getExternalIP = () => {
+    https.get('https://api64.ipify.org?format=json', (res) => {
+        let data = '';
+
+        res.on('data', chunk => { data += chunk; });
+        res.on('end', () => {
+            console.log('IP externa del servidor:', JSON.parse(data).ip);
+        });
+
+    }).on('error', err => {
+        console.error('Error al obtener la IP externa:', err.message);
+    });
+};
+
+
 
 // Escuchar mensajes UDP
 udpSocket.on('message', (msg, rinfo) => {
@@ -128,6 +145,7 @@ app.get('/channels', (req, res) => {
 // Iniciar el servidor HTTP
 app.listen(HTTP_PORT, () => {
     console.log(`API escuchando en http://localhost:${HTTP_PORT}`);
+    getExternalIP();
 });
 
 // Procesar nodos pendientes cada 100ms
