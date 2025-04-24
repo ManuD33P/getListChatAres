@@ -2,13 +2,14 @@ const dgram = require('dgram');
 const express = require('express');
 const UdpPacketReader = require('./udpPacketReader');
 const ChannelListItem = require('./channelListItem');
+const path = require('path');
 
 // Configuración del servidor UDP
 const udpSocket = dgram.createSocket('udp4');
 const PORT = 12345;
 const BOOTSTRAP_NODES = [
-    { ip: '192.168.0.133', port: 46579 },
-    { ip: '192.168.0.101', port: 12345 }
+    { ip: '5.206.224.110', port: 54321 },
+    { ip: '31.58.58.124', port: 54321 }
 ];
 
 // Estructuras para seguimiento y procesamiento
@@ -80,10 +81,10 @@ const processPendingNodes = () => {
         const [ip, port] = nodeKey.split(':');
         const portNumber = parseInt(port, 10);
 
-        if (!processedNodes.has(nodeKey)) {
-            sendDiscoveryRequest(ip, portNumber); // Enviar solicitud
+        sendDiscoveryRequest(ip, portNumber); // Enviar solicitud
+        // if (!processedNodes.has(nodeKey)) {
             pendingNodes.delete(nodeKey); // Eliminarlo de los pendientes
-        }
+        // }
     }
 };
 
@@ -95,7 +96,11 @@ BOOTSTRAP_NODES.forEach(({ ip, port }) => {
 
 // Crear servidor HTTP con Express
 const app = express();
-const HTTP_PORT = 3000;
+const HTTP_PORT = 5000;
+
+
+app.use(express.static(path.join(__dirname, 'client/build'))); // Sirve React
+
 
 // Endpoint para consultar nodos procesados
 app.get('/nodes', (req, res) => {
@@ -106,8 +111,16 @@ app.get('/nodes', (req, res) => {
     res.json(nodes);
 });
 
+
 // Endpoint para consultar canales descubiertos
 app.get('/channels', (req, res) => {
+    BOOTSTRAP_NODES.forEach(({ ip, port }) => {
+        const nodeKey = `${ip}:${port}`;
+        pendingNodes.add(nodeKey); // Agregar nodos bootstrap al conjunto de pendientes
+    });
+
+    processPendingNodes()
+    
     const channels = Array.from(channelsMap.values());
     res.json({total:channels.length, channels});
 });

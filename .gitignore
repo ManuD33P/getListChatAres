@@ -16,7 +16,7 @@ yarn-error.log*
 .idea/
 .vscode/
 *.swp
-
+server.js
 # System files
 .DS_Store
 Thumbs.db
