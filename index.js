@@ -6,7 +6,7 @@ const path = require('path');
 const https = require('https');
 // Configuración del servidor UDP
 const udpSocket = dgram.createSocket('udp4');
-const PORT = 12345;
+const PORT = 54321;
 const BOOTSTRAP_NODES = [
     { ip: '5.206.224.110', port: 54321 },
     { ip: '31.58.58.124', port: 54321 }
@@ -113,7 +113,7 @@ BOOTSTRAP_NODES.forEach(({ ip, port }) => {
 
 // Crear servidor HTTP con Express
 const app = express();
-const HTTP_PORT = 5000;
+const HTTP_PORT = 54321;
 
 
 app.use(express.static(path.join(__dirname, 'client/build'))); // Sirve React
